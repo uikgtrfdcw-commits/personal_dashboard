@@ -1,6 +1,9 @@
 import streamlit as st
 import pandas as pd
 import gspread
+import base64
+import pathlib
+import json as _json
 from google.oauth2.service_account import Credentials
 from streamlit_js_eval import streamlit_js_eval
 
@@ -163,10 +166,7 @@ def render_mobile_day(day_name, day_df, header, use_phase_tabs=True):
     """渲染手机端训练日内容。use_phase_tabs=True 时按阶段分子选项卡"""
     phase_col = header.index("阶段") if "阶段" in header else -1
 
-    # 只保留核心阶段：专项激活 / 主项训练 / 练后拉伸 / 热身
-    KEEP_PHASES = ("激活", "主项", "拉伸", "热身")
-
-    # 收集各阶段的动作
+    # 收集各阶段的动作（保留所有阶段，不过滤）
     phases = {}  # {phase_name: [(row, index), ...]}
     exercise_num = 1
     for _, row_series in day_df.iterrows():
@@ -174,11 +174,6 @@ def render_mobile_day(day_name, day_df, header, use_phase_tabs=True):
         phase = row[phase_col].strip() if phase_col >= 0 else ""
         name = row[header.index("动作名称")] if "动作名称" in header else ""
         if not name.strip():
-            continue
-        # 过滤非核心阶段（后链强化、核心训练、禁忌等）
-        if phase and not any(k in phase for k in KEEP_PHASES):
-            continue
-        if "严禁" in name:
             continue
         if phase not in phases:
             phases[phase] = []
@@ -505,48 +500,16 @@ iframe[title="streamlit_badge"] {display: none !important;}
     overflow: hidden !important;
 }
 
-/* 完全隐藏侧边栏 */
-[data-testid="stSidebar"] {display: none !important;}
-[data-testid="stSidebarCollapsedControl"] {display: none !important;}
-button[kind="header"] {display: none !important;}
-
-/* 底部导航栏 */
-.bottom-nav {
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    height: 56px;
-    background: #fff;
-    border-top: 1px solid #e0e0e0;
-    display: flex;
-    justify-content: space-around;
-    align-items: center;
-    z-index: 999999;
-    padding-bottom: env(safe-area-inset-bottom, 0px);
+/* 侧边栏缩窄 */
+[data-testid="stSidebar"] {
+    min-width: 140px !important;
+    max-width: 140px !important;
 }
-.bottom-nav a {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    text-decoration: none;
-    color: #999;
-    font-size: 11px;
-    gap: 2px;
-    flex: 1;
-    padding: 6px 0;
+[data-testid="stSidebar"] > div:first-child {
+    padding: 1rem 0.6rem !important;
 }
-.bottom-nav a.active {
-    color: #1565c0;
-}
-.bottom-nav a .nav-icon {
-    font-size: 22px;
-    line-height: 1;
-}
-
-/* 主内容区域给底栏留空间 */
-.main .block-container {
-    padding-bottom: 70px !important;
+[data-testid="stSidebar"] .stRadio label {
+    font-size: 14px !important;
 }
 
 /* 全局字体 */
@@ -589,7 +552,7 @@ html, body, [class*="css"] {
 }
 
 @media (max-width: 768px) {
-    .block-container { padding: 0.5rem 0.8rem !important; padding-bottom: 70px !important; }
+    .block-container { padding: 0.5rem 0.8rem !important; }
     .stTabs [data-baseweb="tab-list"] { gap: 2px; }
     .stTabs [data-baseweb="tab"] { font-size: 14px; padding: 8px 10px; }
 }
@@ -631,64 +594,82 @@ html, body, [class*="css"] {
 # ============================================================
 st.markdown(GLOBAL_CSS, unsafe_allow_html=True)
 
+# ---------- PWA: 图标和名称 ----------
+_icon_path = pathlib.Path(__file__).parent / "icon.jpg"
+if _icon_path.exists():
+    _icon_b64 = base64.b64encode(_icon_path.read_bytes()).decode()
+    _icon_data_url = f"data:image/jpeg;base64,{_icon_b64}"
+    _manifest = {
+        "name": "我有一个计划",
+        "short_name": "计划",
+        "start_url": ".",
+        "display": "standalone",
+        "background_color": "#ffffff",
+        "theme_color": "#1565c0",
+        "icons": [{"src": _icon_data_url, "sizes": "512x512", "type": "image/jpeg"}],
+    }
+    _manifest_b64 = base64.b64encode(_json.dumps(_manifest).encode()).decode()
+    st.markdown(
+        f"""
+        <link rel="apple-touch-icon" href="{_icon_data_url}">
+        <link rel="manifest" href="data:application/manifest+json;base64,{_manifest_b64}">
+        <meta name="apple-mobile-web-app-capable" content="yes">
+        <meta name="apple-mobile-web-app-title" content="我有一个计划">
+        <meta name="mobile-web-app-capable" content="yes">
+        """,
+        unsafe_allow_html=True,
+    )
+
 # 检测屏幕宽度
 screen_width = streamlit_js_eval(js_expressions="window.innerWidth", key="screen_width")
 is_mobile = screen_width is not None and screen_width < 768
 
-# ---------- 底部导航栏（知乎风格） ----------
-params = st.query_params
-page = params.get("page", "fitness")
-if page not in ("fitness", "tasks"):
-    page = "fitness"
-
-fit_active = "active" if page == "fitness" else ""
-task_active = "active" if page == "tasks" else ""
-
-bottom_nav_html = f'''
-<div class="bottom-nav">
-    <a href="?page=fitness" target="_self" class="{fit_active}">
-        <span class="nav-icon">💪</span>
-        <span>健身计划</span>
-    </a>
-    <a href="?page=tasks" target="_self" class="{task_active}">
-        <span class="nav-icon">📋</span>
-        <span>任务清单</span>
-    </a>
-</div>
-'''
-st.markdown(bottom_nav_html, unsafe_allow_html=True)
+# ---------- 侧边栏导航 ----------
+with st.sidebar:
+    page = st.radio("导航", ["💪 健身计划", "📋 任务清单"], label_visibility="collapsed")
 
 # ---------- JS: 强制移除 Streamlit 水印 ----------
 streamlit_js_eval(js_expressions="""
 (function() {
-    function removeWatermark() {
-        document.querySelectorAll('a[href*="streamlit.io"]').forEach(el => {el.style.display='none'; el.remove();});
-        document.querySelectorAll('.viewerBadge_container__r5tak, .viewerBadge_link__qRIco, .styles_viewerBadge__CvC9N').forEach(el => el.remove());
-        document.querySelectorAll('[data-testid="stAppDeployButton"], [data-testid="manage-app-button"]').forEach(el => el.remove());
-        document.querySelectorAll('iframe[title="streamlit_badge"]').forEach(el => el.remove());
-        document.querySelectorAll('footer').forEach(el => {el.style.display='none'; el.style.height='0'; el.style.overflow='hidden';});
-        document.querySelectorAll('.stApp footer, .main footer').forEach(el => {el.style.display='none';});
-        // 移除任何包含 "Hosted with Streamlit" 文本的元素
-        document.querySelectorAll('*').forEach(el => {
-            if (el.children.length === 0 && el.textContent && el.textContent.includes('Hosted with Streamlit')) {
-                var p = el.closest('div') || el.parentElement;
-                if (p) p.style.display = 'none';
-            }
+    function nuke() {
+        // 移除所有 footer
+        document.querySelectorAll('footer').forEach(function(el) {
+            el.parentNode.removeChild(el);
         });
+        // 移除 streamlit 相关链接和徽章
+        document.querySelectorAll('a[href*="streamlit.io"]').forEach(function(el) {
+            el.parentNode.removeChild(el);
+        });
+        document.querySelectorAll('[class*="viewerBadge"], [class*="ViewerBadge"]').forEach(function(el) {
+            el.parentNode.removeChild(el);
+        });
+        document.querySelectorAll('[data-testid="stAppDeployButton"], [data-testid="manage-app-button"]').forEach(function(el) {
+            el.parentNode.removeChild(el);
+        });
+        // 文本匹配：移除含 "Hosted with Streamlit" 的元素
+        var all = document.querySelectorAll('div, span, p, a');
+        for (var i = 0; i < all.length; i++) {
+            if (all[i].innerText && all[i].innerText.indexOf('Hosted with Streamlit') !== -1) {
+                all[i].style.display = 'none';
+                if (all[i].parentElement) all[i].parentElement.style.display = 'none';
+            }
+        }
     }
-    removeWatermark();
-    setInterval(removeWatermark, 500);
-    return 'ok';
+    nuke();
+    setInterval(nuke, 300);
+    return 'done';
 })()
 """, key="remove_watermark")
 
 try:
     gc = _get_client()
 
-    if page == "fitness":
+    if page == "💪 健身计划":
         # ============================================================
         # 健身计划页面
         # ============================================================
+        st.markdown("### 健身计划")
+
         tab_plan, tab_warmup, tab_stretch, tab_lib, tab_body, tab_notes_tab, tab_tnotes = st.tabs([
             "📅 训练计划",
             "🔥 热身",
@@ -850,10 +831,11 @@ try:
             else:
                 st.info("无训练笔记")
 
-    elif page == "tasks":
+    elif page == "📋 任务清单":
         # ============================================================
         # 任务清单页面
         # ============================================================
+        st.markdown("### 任务清单")
 
         tab_active, tab_archive = st.tabs(["📌 进行中", "✅ 已完成"])
 
