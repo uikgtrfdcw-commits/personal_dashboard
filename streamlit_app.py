@@ -14,7 +14,7 @@ SCOPES = [
     "https://www.googleapis.com/auth/drive",
 ]
 
-st.set_page_config(page_title="个人管理", page_icon="📋", layout="wide")
+st.set_page_config(page_title="我有一个计划", page_icon="icon.jpg", layout="wide")
 
 
 # ============================================================
