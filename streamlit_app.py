@@ -48,31 +48,31 @@ def get_day_data(df):
 # 颜色/样式映射（健身）
 # ============================================================
 DAY_COLORS = {
-    "每日通用热身": ("#00695c", "#e0f7fa", "🔥"),
-    "每日练后拉伸": ("#5d4037", "#efebe9", "🧘"),
-    "第1天：下肢+核心": ("#283593", "#e8eaf6", "🦵"),
-    "第2天：上肢拉": ("#004d40", "#e0f2f1", "💪"),
-    "第3天：轻量全身+恢复": ("#33691e", "#f1f8e9", "🌿"),
-    "第4天：上肢推": ("#ff6f00", "#fff8e1", "🏋️"),
-    "第5天：后链+下肢": ("#283593", "#e8eaf6", "🔗"),
-    "第6天：灵活性+松解": ("#4a148c", "#f3e5f5", "🧘"),
-    "第7天：完全休息": ("#880e4f", "#fce4ec", "😴"),
+    "每日通用热身": ("#1565c0", "#f5f7fa", "🔥"),
+    "每日练后拉伸": ("#1565c0", "#f5f7fa", "🧘"),
+    "第1天：下肢+核心": ("#1565c0", "#f5f7fa", "🦵"),
+    "第2天：上肢拉": ("#1565c0", "#f5f7fa", "💪"),
+    "第3天：轻量全身+恢复": ("#1565c0", "#f5f7fa", "🌿"),
+    "第4天：上肢推": ("#1565c0", "#f5f7fa", "🏋️"),
+    "第5天：后链+下肢": ("#1565c0", "#f5f7fa", "🔗"),
+    "第6天：灵活性+松解": ("#1565c0", "#f5f7fa", "🧘"),
+    "第7天：完全休息": ("#1565c0", "#f5f7fa", "😴"),
 }
 
 TYPE_BADGES = {
-    "💪": ("复合", "#1565c0", "#e3f2fd"),
-    "🎯": ("孤立", "#e65100", "#fff3e0"),
-    "🔧": ("激活", "#2e7d32", "#e8f5e9"),
-    "🧘": ("拉伸", "#6a1b9a", "#f3e5f5"),
+    "💪": ("复合", "#555", "#f0f0f0"),
+    "🎯": ("孤立", "#555", "#f0f0f0"),
+    "🔧": ("激活", "#555", "#f0f0f0"),
+    "🧘": ("拉伸", "#555", "#f0f0f0"),
 }
 
 CATEGORY_COLORS = {
-    "🔴 伤病状况": ("#c0392b", "#fff0f0"),
-    "🚫 训练禁忌": ("#e65100", "#fff3e0"),
-    "🟡 环境因素": ("#f57f17", "#fffde7"),
-    "🟢 恢复策略": ("#2e7d32", "#e8f5e9"),
-    "🔵 营养与作息": ("#1565c0", "#e3f2fd"),
-    "📋 训练原则": ("#6a1b9a", "#f3e5f5"),
+    "🔴 伤病状况": ("#c62828", "#fef5f5"),
+    "🚫 训练禁忌": ("#c62828", "#fef5f5"),
+    "🟡 环境因素": ("#555", "#f5f7fa"),
+    "🟢 恢复策略": ("#555", "#f5f7fa"),
+    "🔵 营养与作息": ("#555", "#f5f7fa"),
+    "📋 训练原则": ("#555", "#f5f7fa"),
 }
 
 PRIORITY_STYLE = {
@@ -130,31 +130,30 @@ def render_mobile_exercise_card(row, header, index):
 
     rpe_html = ""
     if rpe.strip():
-        rpe_color = "#c62828" if any(x in rpe for x in ("7", "8", "9")) else "#2e7d32"
-        rpe_html = f'<span style="display:inline-block;padding:2px 8px;border-radius:12px;font-size:13px;font-weight:bold;color:white;background:{rpe_color};">RPE {rpe}</span>'
+        rpe_html = f'<span style="font-size:13px;color:#666;">RPE {rpe}</span>'
 
     has_warning = "⚠️" in note
     warning_border = "border-left:4px solid #ff9800;" if has_warning else f"border-left:4px solid {border_color};"
 
     card_html = f'''
-    <div style="{warning_border}background:white;border-radius:8px;padding:14px 16px;margin-bottom:10px;box-shadow:0 1px 3px rgba(0,0,0,0.08);">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
-            <span style="font-size:17px;font-weight:700;color:#1a1a2e;">{index}. {name}</span>
+    <div style="{warning_border}background:white;border-radius:8px;padding:12px 14px;margin-bottom:8px;box-shadow:0 1px 2px rgba(0,0,0,0.06);">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">
+            <span style="font-size:14px;font-weight:600;color:#333;">{index}. {name}</span>
             {badge}
         </div>'''
 
     if sets.strip():
-        card_html += f'<div style="font-size:15px;color:#333;margin-bottom:4px;">📊 <b>{sets}</b></div>'
+        card_html += f'<div style="font-size:14px;color:#333;margin-bottom:3px;">{sets}</div>'
     if tempo.strip():
-        card_html += f'<div style="font-size:13px;color:#555;margin-bottom:4px;">⏱ {tempo}</div>'
+        card_html += f'<div style="font-size:13px;color:#666;margin-bottom:3px;">{tempo}</div>'
     if rpe_html:
-        card_html += f'<div style="margin-bottom:4px;">{rpe_html}</div>'
+        card_html += f'<div style="margin-bottom:3px;">{rpe_html}</div>'
     if progression.strip():
-        card_html += f'<div style="font-size:12px;color:#666;margin-bottom:4px;">📈 {progression}</div>'
+        card_html += f'<div style="font-size:13px;color:#666;margin-bottom:3px;">{progression}</div>'
     if note.strip():
-        note_bg = "#fff3e0" if has_warning else "#f8f9fa"
-        note_color = "#e65100" if has_warning else "#444"
-        card_html += f'<div style="font-size:13px;color:{note_color};background:{note_bg};padding:8px 10px;border-radius:6px;margin-top:6px;line-height:1.6;">{note}</div>'
+        note_bg = "#fef5f5" if has_warning else "#f5f7fa"
+        note_color = "#c62828" if has_warning else "#555"
+        card_html += f'<div style="font-size:13px;color:{note_color};background:{note_bg};padding:6px 10px;border-radius:4px;margin-top:4px;line-height:1.5;">{note}</div>'
 
     card_html += '</div>'
     return card_html
@@ -164,8 +163,8 @@ def render_mobile_day(day_name, day_df, header):
     color, bg, icon = DAY_COLORS.get(day_name, ("#333", "#f5f5f5", "📋"))
 
     html = f'''
-    <div style="background:{bg};border-radius:12px;padding:16px;margin-bottom:20px;">
-        <div style="font-size:20px;font-weight:800;color:{color};margin-bottom:12px;text-align:center;">
+    <div style="background:{bg};border-radius:8px;padding:12px;margin-bottom:12px;">
+        <div style="font-size:15px;font-weight:700;color:{color};text-align:center;">
             {icon} {day_name}
         </div>
     </div>'''
@@ -181,9 +180,8 @@ def render_mobile_day(day_name, day_df, header):
             phase = row[phase_col]
             if phase and phase != current_phase:
                 current_phase = phase
-                phase_color = "#6a1b9a" if "拉伸" in phase else "#00695c" if "热身" in phase or "激活" in phase else "#1565c0"
                 st.markdown(
-                    f'<div style="font-size:14px;font-weight:700;color:{phase_color};padding:8px 0 4px 0;border-bottom:2px solid {phase_color};margin:12px 0 8px 0;">{phase}</div>',
+                    f'<div style="font-size:14px;font-weight:600;color:#333;padding:6px 0 4px 0;border-bottom:1px solid #ddd;margin:10px 0 6px 0;">{phase}</div>',
                     unsafe_allow_html=True,
                 )
 
@@ -195,7 +193,7 @@ def render_mobile_day(day_name, day_df, header):
         elif "严禁" in name:
             note = row[header.index("注意事项")] if "注意事项" in header else ""
             st.markdown(
-                f'<div style="background:#fff0f0;border-left:4px solid #c62828;padding:10px 14px;border-radius:6px;margin-bottom:10px;font-size:14px;color:#c62828;font-weight:600;">🚫 {name}：{note}</div>',
+                f'<div style="background:#fef5f5;border-left:3px solid #c62828;padding:8px 12px;border-radius:4px;margin-bottom:8px;font-size:14px;color:#c62828;">🚫 {name}：{note}</div>',
                 unsafe_allow_html=True,
             )
 
@@ -210,17 +208,17 @@ def render_mobile_body(df):
 
         if cat != current_cat:
             current_cat = cat
-            color, bg = CATEGORY_COLORS.get(cat, ("#333", "#f5f5f5"))
+            color, bg = CATEGORY_COLORS.get(cat, ("#333", "#f5f7fa"))
             st.markdown(
-                f'<div style="background:{bg};padding:10px 14px;border-radius:8px;margin:16px 0 8px 0;font-size:16px;font-weight:700;color:{color};">{cat}</div>',
+                f'<div style="background:{bg};padding:8px 12px;border-radius:6px;margin:12px 0 6px 0;font-size:14px;font-weight:600;color:{color};">{cat}</div>',
                 unsafe_allow_html=True,
             )
 
         if item.strip():
             st.markdown(
-                f'''<div style="background:white;border-left:3px solid #ddd;padding:10px 14px;margin-bottom:8px;border-radius:6px;box-shadow:0 1px 2px rgba(0,0,0,0.05);">
-                    <div style="font-size:15px;font-weight:600;color:#1a1a2e;margin-bottom:4px;">{item}</div>
-                    <div style="font-size:13px;color:#555;line-height:1.6;">{detail}</div>
+                f'''<div style="background:white;border-left:2px solid #ddd;padding:8px 12px;margin-bottom:6px;border-radius:4px;">
+                    <div style="font-size:14px;font-weight:600;color:#333;margin-bottom:2px;">{item}</div>
+                    <div style="font-size:13px;color:#666;line-height:1.5;">{detail}</div>
                 </div>''',
                 unsafe_allow_html=True,
             )
@@ -235,13 +233,13 @@ def render_mobile_lib(df):
         badge = _get_type_badge(atype)
 
         st.markdown(
-            f'''<div style="background:white;border-radius:8px;padding:12px 14px;margin-bottom:8px;box-shadow:0 1px 3px rgba(0,0,0,0.08);">
-                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">
-                    <span style="font-size:15px;font-weight:700;color:#1a1a2e;">{name}</span>
+            f'''<div style="background:white;border-radius:6px;padding:10px 12px;margin-bottom:6px;box-shadow:0 1px 2px rgba(0,0,0,0.06);">
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:3px;">
+                    <span style="font-size:14px;font-weight:600;color:#333;">{name}</span>
                     {badge}
                 </div>
-                <div style="font-size:13px;color:#666;margin-bottom:4px;">🎯 {muscle}</div>
-                <div style="font-size:12px;color:#555;line-height:1.5;">{note}</div>
+                <div style="font-size:13px;color:#666;margin-bottom:3px;">{muscle}</div>
+                <div style="font-size:13px;color:#666;line-height:1.5;">{note}</div>
             </div>''',
             unsafe_allow_html=True,
         )
@@ -263,14 +261,14 @@ def render_mobile_notes(df):
         border_color = "#00695c" if is_general else p_color
 
         card = f'''
-        <div style="border-left:4px solid {border_color};background:white;border-radius:8px;padding:14px 16px;margin-bottom:10px;box-shadow:0 1px 3px rgba(0,0,0,0.08);">
-            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
-                <span style="font-size:15px;font-weight:700;color:#1a1a2e;">{name}</span>
-                {_badge(priority, p_color, p_bg)}
+        <div style="border-left:3px solid #ddd;background:white;border-radius:6px;padding:10px 12px;margin-bottom:8px;box-shadow:0 1px 2px rgba(0,0,0,0.06);">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">
+                <span style="font-size:14px;font-weight:600;color:#333;">{name}</span>
+                <span style="font-size:13px;color:#666;">{priority}</span>
             </div>
-            <div style="font-size:12px;color:#888;margin-bottom:6px;">{date} {_badge(status, s_color, s_bg)}</div>
-            <div style="font-size:13px;color:#c62828;background:#fff0f0;padding:8px 10px;border-radius:6px;margin-bottom:6px;line-height:1.6;">⚠️ {problem}</div>
-            <div style="font-size:13px;color:#2e7d32;background:#e8f5e9;padding:8px 10px;border-radius:6px;line-height:1.6;">✅ {fix}</div>
+            <div style="font-size:13px;color:#888;margin-bottom:4px;">{date} · {status}</div>
+            <div style="font-size:13px;color:#c62828;background:#fef5f5;padding:6px 10px;border-radius:4px;margin-bottom:4px;line-height:1.5;">{problem}</div>
+            <div style="font-size:13px;color:#2e7d32;background:#f5faf5;padding:6px 10px;border-radius:4px;line-height:1.5;">{fix}</div>
         </div>'''
         st.markdown(card, unsafe_allow_html=True)
 
@@ -414,7 +412,7 @@ def render_task_table(df: pd.DataFrame, title: str, is_mobile: bool) -> None:
             if cat != current_cat:
                 current_cat = cat
                 st.markdown(
-                    f'<div style="background:#e3f2fd;padding:10px 14px;border-radius:8px;margin:16px 0 8px 0;font-size:16px;font-weight:700;color:#1565c0;">{cat}</div>',
+                    f'<div style="background:#f5f7fa;padding:8px 12px;border-radius:6px;margin:12px 0 6px 0;font-size:14px;font-weight:600;color:#333;">{cat}</div>',
                     unsafe_allow_html=True,
                 )
             # 显示其余列
@@ -423,10 +421,10 @@ def render_task_table(df: pd.DataFrame, title: str, is_mobile: bool) -> None:
                 col_name = df.columns[j]
                 val = str(row.iloc[j]).strip()
                 if val:
-                    card_content += f'<div style="font-size:13px;color:#444;margin-bottom:3px;"><b>{col_name}</b>：{val}</div>'
+                    card_content += f'<div style="font-size:14px;color:#444;margin-bottom:2px;"><b>{col_name}</b>：{val}</div>'
             if card_content:
                 st.markdown(
-                    f'<div style="background:white;border-left:3px solid #1565c0;padding:10px 14px;margin-bottom:8px;border-radius:6px;box-shadow:0 1px 2px rgba(0,0,0,0.05);">{card_content}</div>',
+                    f'<div style="background:white;border-left:2px solid #ddd;padding:8px 12px;margin-bottom:6px;border-radius:4px;">{card_content}</div>',
                     unsafe_allow_html=True,
                 )
     else:
@@ -470,47 +468,81 @@ def render_task_table(df: pd.DataFrame, title: str, is_mobile: bool) -> None:
 # ============================================================
 GLOBAL_CSS = """
 <style>
+/* 隐藏 Streamlit 默认 UI */
+#MainMenu {visibility: hidden;}
+header {visibility: hidden;}
+footer {visibility: hidden;}
+[data-testid="stToolbar"] {display: none;}
+[data-testid="stDecoration"] {display: none;}
+[data-testid="stStatusWidget"] {display: none;}
+.stDeployButton {display: none;}
+
+/* 全局字体 */
+html, body, [class*="css"] {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+}
+
+/* 表格 */
 .fit-table {
     width: 100%;
     border-collapse: collapse;
-    font-size: 13px;
-    line-height: 1.5;
+    font-size: 14px;
+    line-height: 1.6;
 }
 .fit-table th {
-    background-color: #1a1a2e;
-    color: #ffffff;
+    background-color: #f8f9fa;
+    color: #333;
     padding: 10px 12px;
-    text-align: center;
-    font-weight: bold;
-    font-size: 13px;
-    border: 1px solid #333;
-    position: sticky;
-    top: 0;
-    z-index: 1;
+    text-align: left;
+    font-weight: 600;
+    font-size: 14px;
+    border-bottom: 2px solid #dee2e6;
 }
 .fit-table td {
     padding: 8px 10px;
-    border: 1px solid #e0e0e0;
+    border-bottom: 1px solid #eee;
     vertical-align: middle;
+    font-size: 14px;
+    color: #333;
 }
 .fit-table .merged-cell {
-    font-weight: 700;
-    font-size: 13px;
+    font-weight: 600;
+    font-size: 14px;
     vertical-align: middle;
     text-align: center;
-    border-right: 2px solid #ccc;
+    border-right: 2px solid #dee2e6;
 }
 .fit-table tr:hover td {
-    background-color: #f0f4ff;
+    background-color: #f8f9fa;
 }
-.fit-table tr:nth-child(even) td {
-    background-color: #fafbfc;
+
+/* 顶部导航样式 */
+.nav-container {
+    display: flex;
+    gap: 0;
+    border-bottom: 2px solid #eee;
+    margin-bottom: 16px;
+}
+.nav-btn {
+    flex: 1;
+    text-align: center;
+    padding: 12px 0;
+    font-size: 15px;
+    font-weight: 600;
+    color: #666;
+    cursor: pointer;
+    border-bottom: 3px solid transparent;
+    transition: all 0.2s;
+}
+.nav-btn.active {
+    color: #1565c0;
+    border-bottom-color: #1565c0;
 }
 
 @media (max-width: 768px) {
     .block-container { padding: 0.5rem 0.8rem !important; }
     .stTabs [data-baseweb="tab-list"] { gap: 2px; }
-    .stTabs [data-baseweb="tab"] { font-size: 13px; padding: 6px 8px; }
+    .stTabs [data-baseweb="tab"] { font-size: 14px; padding: 8px 10px; }
 }
 </style>
 """
@@ -525,8 +557,8 @@ st.markdown(GLOBAL_CSS, unsafe_allow_html=True)
 screen_width = streamlit_js_eval(js_expressions="window.innerWidth", key="screen_width")
 is_mobile = screen_width is not None and screen_width < 768
 
-# 顶层导航
-page = st.sidebar.radio("导航", ["💪 健身计划", "📋 任务清单"], label_visibility="collapsed")
+# 顶层导航（用 st.radio 水平排列，不用 sidebar）
+page = st.radio("导航", ["💪 健身计划", "📋 任务清单"], horizontal=True, label_visibility="collapsed")
 
 try:
     gc = _get_client()
@@ -537,12 +569,11 @@ try:
         # ============================================================
         if is_mobile:
             st.markdown(
-                '<div style="text-align:center;padding:8px 0;"><span style="font-size:22px;font-weight:800;">💪 道长训练计划</span></div>',
+                '<div style="text-align:center;padding:8px 0;"><span style="font-size:18px;font-weight:700;color:#333;">健身计划</span></div>',
                 unsafe_allow_html=True,
             )
         else:
-            st.title("💪 道长训练计划")
-            st.caption("数据来源：Google Sheet · 实时同步")
+            st.markdown("### 健身计划")
 
         tab1, tab2, tab3, tab4, tab5 = st.tabs([
             "📅 训练计划",
@@ -654,7 +685,7 @@ try:
                     else:
                         if is_mobile:
                             st.markdown(
-                                f'<div style="margin-bottom:8px;"><span style="font-weight:700;font-size:14px;">{topic}</span><br><span style="font-size:13px;color:#444;">{content}</span></div>',
+                                f'<div style="margin-bottom:6px;"><span style="font-weight:600;font-size:14px;color:#333;">{topic}</span><br><span style="font-size:13px;color:#666;">{content}</span></div>',
                                 unsafe_allow_html=True,
                             )
                         else:
@@ -695,12 +726,11 @@ try:
         # ============================================================
         if is_mobile:
             st.markdown(
-                '<div style="text-align:center;padding:8px 0;"><span style="font-size:22px;font-weight:800;">📋 任务清单</span></div>',
+                '<div style="text-align:center;padding:8px 0;"><span style="font-size:18px;font-weight:700;color:#333;">任务清单</span></div>',
                 unsafe_allow_html=True,
             )
         else:
-            st.title("📋 任务清单")
-            st.caption("数据来源：Google Sheet · 实时同步")
+            st.markdown("### 任务清单")
 
         tab_active, tab_archive = st.tabs(["📌 进行中", "✅ 已完成"])
 
