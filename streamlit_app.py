@@ -139,24 +139,30 @@ def render_mobile_exercise_card(row, header, index):
     warning_border = "border-left:4px solid #ff9800;" if has_warning else f"border-left:4px solid {border_color};"
 
     card_html = f'''
-    <div style="{warning_border}background:white;border-radius:8px;padding:12px 14px;margin-bottom:8px;box-shadow:0 1px 2px rgba(0,0,0,0.06);">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">
-            <span style="font-size:14px;font-weight:600;color:#333;">{index}. {name}</span>
+    <div style="{warning_border}background:white;border-radius:10px;padding:10px 12px;margin-bottom:8px;box-shadow:0 1px 3px rgba(0,0,0,0.05);border:1px solid #f0f0f0;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:2px;">
+            <span style="font-size:14px;font-weight:600;color:#2c3e50;">{index}. {name}</span>
             {badge}
         </div>'''
 
     if sets.strip():
-        card_html += f'<div style="font-size:14px;color:#333;margin-bottom:3px;">{sets}</div>'
+        card_html += f'<div style="font-size:13px;color:#34495e;font-weight:500;margin-bottom:2px;">{sets}</div>'
+    
+    # 辅助信息容器
+    card_html += '<div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:2px;">'
     if tempo.strip():
-        card_html += f'<div style="font-size:13px;color:#666;margin-bottom:3px;">{tempo}</div>'
+        card_html += f'<div style="font-size:12px;color:#7f8c8d;">⏱️ {tempo}</div>'
     if rpe_html:
-        card_html += f'<div style="margin-bottom:3px;">{rpe_html}</div>'
+        card_html += f'<div style="font-size:12px;color:#7f8c8d;">{rpe_html}</div>'
+    card_html += '</div>'
+
     if progression.strip():
-        card_html += f'<div style="font-size:13px;color:#666;margin-bottom:3px;">{progression}</div>'
+        card_html += f'<div style="font-size:12px;color:#7f8c8d;margin-bottom:2px;font-style:italic;">📈 {progression}</div>'
+    
     if note.strip():
-        note_bg = "#fef5f5" if has_warning else "#f5f7fa"
-        note_color = "#c62828" if has_warning else "#555"
-        card_html += f'<div style="font-size:13px;color:{note_color};background:{note_bg};padding:6px 10px;border-radius:4px;margin-top:4px;line-height:1.5;">{note}</div>'
+        note_bg = "#fff5f5" if has_warning else "#f8f9fa"
+        note_color = "#e74c3c" if has_warning else "#5d6d7e"
+        card_html += f'<div style="font-size:12px;color:{note_color};background:{note_bg};padding:6px 10px;border-radius:6px;margin-top:4px;line-height:1.4;border:1px solid {"#ffdada" if has_warning else "#eee"};">{note}</div>'
 
     card_html += '</div>'
     return card_html
@@ -216,17 +222,17 @@ def render_mobile_body(df):
 
         if cat != current_cat:
             current_cat = cat
-            color, bg = CATEGORY_COLORS.get(cat, ("#333", "#f5f7fa"))
+            color, bg = CATEGORY_COLORS.get(cat, ("#2c3e50", "#f1f3f5"))
             st.markdown(
-                f'<div style="background:{bg};padding:8px 12px;border-radius:6px;margin:12px 0 6px 0;font-size:14px;font-weight:600;color:{color};">{cat}</div>',
+                f'<div style="background:{bg};padding:6px 12px;border-radius:6px;margin:10px 0 6px 0;font-size:13px;font-weight:600;color:{color};">{cat}</div>',
                 unsafe_allow_html=True,
             )
 
         if item.strip():
             st.markdown(
-                f'''<div style="background:white;border-left:2px solid #ddd;padding:8px 12px;margin-bottom:6px;border-radius:4px;">
-                    <div style="font-size:14px;font-weight:600;color:#333;margin-bottom:2px;">{item}</div>
-                    <div style="font-size:13px;color:#666;line-height:1.5;">{detail}</div>
+                f'''<div style="background:white;border-left:2px solid #ddd;padding:8px 12px;margin-bottom:6px;border-radius:6px;border:1px solid #f0f0f0;">
+                    <div style="font-size:13px;font-weight:600;color:#2c3e50;margin-bottom:2px;">{item}</div>
+                    <div style="font-size:12px;color:#5d6d7e;line-height:1.4;">{detail}</div>
                 </div>''',
                 unsafe_allow_html=True,
             )
@@ -241,13 +247,13 @@ def render_mobile_lib(df):
         badge = _get_type_badge(atype)
 
         st.markdown(
-            f'''<div style="background:white;border-radius:6px;padding:10px 12px;margin-bottom:6px;box-shadow:0 1px 2px rgba(0,0,0,0.06);">
+            f'''<div style="background:white;border-radius:8px;padding:10px 12px;margin-bottom:8px;box-shadow:0 1px 3px rgba(0,0,0,0.05);border:1px solid #f0f0f0;">
                 <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:3px;">
-                    <span style="font-size:14px;font-weight:600;color:#333;">{name}</span>
+                    <span style="font-size:14px;font-weight:600;color:#2c3e50;">{name}</span>
                     {badge}
                 </div>
-                <div style="font-size:13px;color:#666;margin-bottom:3px;">{muscle}</div>
-                <div style="font-size:13px;color:#666;line-height:1.5;">{note}</div>
+                {f'<div style="font-size:12px;color:#7f8c8d;margin-bottom:3px;">🎯 {muscle}</div>' if muscle.strip() else ""}
+                <div style="font-size:12px;color:#5d6d7e;line-height:1.4;background:#f8f9fa;padding:6px 10px;border-radius:6px;border:1px solid #eee;">{note}</div>
             </div>''',
             unsafe_allow_html=True,
         )
@@ -262,21 +268,18 @@ def render_mobile_notes(df):
         priority = str(row.get("优先级", "")).strip()
         status = str(row.get("状态", "")).strip()
 
-        p_color, p_bg = PRIORITY_STYLE.get(priority, ("#333", "#f5f5f5"))
-        s_color, s_bg = STATUS_STYLE.get(status, ("#333", "#f5f5f5"))
-
-        is_general = name.startswith("[")
-        border_color = "#00695c" if is_general else p_color
+        p_color, p_bg = PRIORITY_STYLE.get(priority, ("#34495e", "#f1f3f5"))
+        s_color, s_bg = STATUS_STYLE.get(status, ("#34495e", "#f1f3f5"))
 
         card = f'''
-        <div style="border-left:3px solid #ddd;background:white;border-radius:6px;padding:10px 12px;margin-bottom:8px;box-shadow:0 1px 2px rgba(0,0,0,0.06);">
-            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">
-                <span style="font-size:14px;font-weight:600;color:#333;">{name}</span>
-                <span style="font-size:13px;color:#666;">{priority}</span>
+        <div style="border-left:3px solid {p_color};background:white;border-radius:8px;padding:10px 12px;margin-bottom:8px;box-shadow:0 1px 3px rgba(0,0,0,0.05);border:1px solid #f0f0f0;">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:2px;">
+                <span style="font-size:14px;font-weight:600;color:#2c3e50;">{name}</span>
+                <span style="font-size:11px;padding:2px 6px;border-radius:4px;background:{p_bg};color:{p_color};font-weight:600;">{priority}</span>
             </div>
-            <div style="font-size:13px;color:#888;margin-bottom:4px;">{date} · {status}</div>
-            <div style="font-size:13px;color:#c62828;background:#fef5f5;padding:6px 10px;border-radius:4px;margin-bottom:4px;line-height:1.5;">{problem}</div>
-            <div style="font-size:13px;color:#2e7d32;background:#f5faf5;padding:6px 10px;border-radius:4px;line-height:1.5;">{fix}</div>
+            <div style="font-size:11px;color:#95a5a6;margin-bottom:6px;">{date} · {status}</div>
+            <div style="font-size:12px;color:#e74c3c;background:#fff5f5;padding:6px 10px;border-radius:6px;margin-bottom:4px;line-height:1.4;border:1px solid #ffdada;">{problem}</div>
+            <div style="font-size:12px;color:#27ae60;background:#f4fbf7;padding:6px 10px;border-radius:6px;line-height:1.4;border:1px solid #d4f2e1;">{fix}</div>
         </div>'''
         st.markdown(card, unsafe_allow_html=True)
 
@@ -520,9 +523,13 @@ iframe[title="streamlit_badge"] {display: none !important;}
     min-height: 36px !important;
 }
 
-/* 全局字体 */
+/* 全局字体与排版优化 */
 html, body, [class*="css"] {
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", Arial, sans-serif;
+    -webkit-font-smoothing: antialiased;
+}
+p, li, span, div {
+    color: #2c3e50;
 }
 
 /* 表格 */
@@ -560,38 +567,54 @@ html, body, [class*="css"] {
 }
 
 @media (max-width: 768px) {
-    .block-container { padding: 0.5rem 0.8rem !important; }
-    .stTabs [data-baseweb="tab-list"] { gap: 2px; }
-    .stTabs [data-baseweb="tab"] { font-size: 14px; padding: 8px 10px; }
+    .main .block-container { 
+        padding: 0.2rem 0.5rem !important; 
+    }
+    /* 移除元素间的默认大边距 */
+    [data-testid="stVerticalBlock"] > div {
+        padding-top: 0 !important;
+        padding-bottom: 0 !important;
+        margin-top: -4px !important;
+    }
+    .stTabs [data-baseweb="tab-list"] { 
+        gap: 0; 
+        margin-top: -15px;
+        margin-bottom: 5px;
+    }
+    .stTabs [data-baseweb="tab"] { 
+        font-size: 13px !important; 
+        padding: 6px 8px !important;
+        border: none !important;
+    }
 }
 
-/* 子级选项卡（类似知乎精选/最新/想法） */
+/* 子级选项卡优化 */
 .phase-tabs {
     display: flex;
-    gap: 0;
-    margin: 8px 0 12px 0;
-    border: 1px solid #e0e0e0;
-    border-radius: 20px;
-    overflow: hidden;
-    background: #f5f5f5;
+    gap: 4px;
+    margin: 4px 0 10px 0;
+    padding: 3px;
+    border-radius: 8px;
+    background: #f1f3f5;
 }
 .phase-tab {
     flex: 1;
     text-align: center;
-    padding: 6px 0;
-    font-size: 13px;
+    padding: 5px 0;
+    font-size: 12px;
     font-weight: 500;
-    color: #666;
+    color: #7f8c8d;
     cursor: pointer;
     border: none;
     background: transparent;
-    transition: all 0.2s;
+    border-radius: 6px;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 }
 .phase-tab.active {
-    background: #fff;
-    color: #333;
+    background: #ffffff;
+    color: #1565c0;
     font-weight: 600;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    box-shadow: 0 1px 2px rgba(0,0,0,0.1);
 }
 </style>
 """
