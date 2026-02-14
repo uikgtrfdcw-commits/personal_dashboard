@@ -471,11 +471,24 @@ GLOBAL_CSS = """
 /* 隐藏 Streamlit 默认 UI */
 #MainMenu {visibility: hidden;}
 header {visibility: hidden;}
-footer {visibility: hidden;}
+footer {visibility: hidden !important;}
 [data-testid="stToolbar"] {display: none;}
 [data-testid="stDecoration"] {display: none;}
 [data-testid="stStatusWidget"] {display: none;}
-.stDeployButton {display: none;}
+.stDeployButton {display: none !important;}
+[data-testid="stAppDeployButton"] {display: none !important;}
+.viewerBadge_container__r5tak {display: none !important;}
+.stApp > footer {display: none !important;}
+a[href*="streamlit.io"] {display: none !important;}
+
+/* 侧边栏缩窄 */
+[data-testid="stSidebar"] {
+    min-width: 160px !important;
+    max-width: 160px !important;
+}
+[data-testid="stSidebar"] .block-container {
+    padding: 1rem 0.8rem !important;
+}
 
 /* 全局字体 */
 html, body, [class*="css"] {
@@ -516,29 +529,6 @@ html, body, [class*="css"] {
     background-color: #f8f9fa;
 }
 
-/* 顶部导航样式 */
-.nav-container {
-    display: flex;
-    gap: 0;
-    border-bottom: 2px solid #eee;
-    margin-bottom: 16px;
-}
-.nav-btn {
-    flex: 1;
-    text-align: center;
-    padding: 12px 0;
-    font-size: 15px;
-    font-weight: 600;
-    color: #666;
-    cursor: pointer;
-    border-bottom: 3px solid transparent;
-    transition: all 0.2s;
-}
-.nav-btn.active {
-    color: #1565c0;
-    border-bottom-color: #1565c0;
-}
-
 @media (max-width: 768px) {
     .block-container { padding: 0.5rem 0.8rem !important; }
     .stTabs [data-baseweb="tab-list"] { gap: 2px; }
@@ -557,8 +547,9 @@ st.markdown(GLOBAL_CSS, unsafe_allow_html=True)
 screen_width = streamlit_js_eval(js_expressions="window.innerWidth", key="screen_width")
 is_mobile = screen_width is not None and screen_width < 768
 
-# 顶层导航（用 st.radio 水平排列，不用 sidebar）
-page = st.radio("导航", ["💪 健身计划", "📋 任务清单"], horizontal=True, label_visibility="collapsed")
+# 侧边栏导航
+with st.sidebar:
+    page = st.radio("导航", ["💪 健身计划", "📋 任务清单"], label_visibility="collapsed")
 
 try:
     gc = _get_client()
@@ -567,37 +558,28 @@ try:
         # ============================================================
         # 健身计划页面
         # ============================================================
-        if is_mobile:
-            st.markdown(
-                '<div style="text-align:center;padding:8px 0;"><span style="font-size:18px;font-weight:700;color:#333;">健身计划</span></div>',
-                unsafe_allow_html=True,
-            )
-        else:
-            st.markdown("### 健身计划")
-
-        tab1, tab2, tab3, tab4, tab5 = st.tabs([
+        tab_plan, tab_warmup, tab_stretch, tab_lib, tab_body, tab_notes_tab, tab_tnotes = st.tabs([
             "📅 训练计划",
+            "🔥 热身",
+            "🧘 拉伸",
             "📚 动作库",
             "🏥 身体状况",
             "📝 备注",
             "🔬 训练笔记",
         ])
 
-        # --- Tab 1: 周训练计划 ---
-        with tab1:
-            df_weekly = load_sheet(gc, FITNESS_SPREADSHEET_ID, "周训练计划")
+        # --- 加载周训练数据（多个 tab 共用） ---
+        df_weekly = load_sheet(gc, FITNESS_SPREADSHEET_ID, "周训练计划")
+        header = df_weekly.columns.tolist() if not df_weekly.empty else []
+        day_data = get_day_data(df_weekly) if not df_weekly.empty else {}
+        day_names = list(day_data.keys())
+
+        # --- Tab: 训练计划（仅训练日，不含热身/拉伸） ---
+        with tab_plan:
             if not df_weekly.empty:
-                header = df_weekly.columns.tolist()
-                day_data = get_day_data(df_weekly)
-                day_names = list(day_data.keys())
+                training_days = [d for d in day_names if "热身" not in d and "练后拉伸" not in d]
 
                 if is_mobile:
-                    st.markdown(
-                        '<div style="font-size:14px;color:#666;text-align:center;margin-bottom:8px;">选择今天的训练日 👇</div>',
-                        unsafe_allow_html=True,
-                    )
-
-                    training_days = [d for d in day_names if "热身" not in d and "练后拉伸" not in d]
                     selected_day = st.selectbox(
                         "训练日",
                         options=training_days,
@@ -605,37 +587,54 @@ try:
                         key="mobile_day",
                         label_visibility="collapsed",
                     )
-
-                    warmup_key = [d for d in day_names if "热身" in d]
-                    if warmup_key:
-                        with st.expander("🔥 每日通用热身（点击展开）", expanded=False):
-                            render_mobile_day(warmup_key[0], day_data[warmup_key[0]], header)
-
-                    stretch_key = [d for d in day_names if "练后拉伸" in d]
-                    if stretch_key:
-                        with st.expander("🧘 每日练后拉伸（点击展开）", expanded=False):
-                            render_mobile_day(stretch_key[0], day_data[stretch_key[0]], header)
-
                     if selected_day in day_data:
                         render_mobile_day(selected_day, day_data[selected_day], header)
-
                 else:
                     df_weekly.iloc[:, 0] = df_weekly.iloc[:, 0].replace("", pd.NA).ffill().fillna("")
                     selected = st.multiselect(
                         "筛选训练日",
-                        options=day_names,
-                        default=day_names,
+                        options=training_days,
+                        default=training_days,
                         key="day_filter",
                     )
                     df_filtered = df_weekly[df_weekly.iloc[:, 0].isin(selected)]
                     html = render_table_with_rowspan(df_filtered, merge_col=0)
                     st.markdown(html, unsafe_allow_html=True)
-                    st.caption(f"共 {len(df_filtered)} 行 · {len(selected)} 个训练日")
             else:
                 st.info("无数据")
 
-        # --- Tab 2: 动作库 ---
-        with tab2:
+        # --- Tab: 热身 ---
+        with tab_warmup:
+            warmup_keys = [d for d in day_names if "热身" in d]
+            if warmup_keys:
+                if is_mobile:
+                    render_mobile_day(warmup_keys[0], day_data[warmup_keys[0]], header)
+                else:
+                    df_w = df_weekly.copy()
+                    df_w.iloc[:, 0] = df_w.iloc[:, 0].replace("", pd.NA).ffill().fillna("")
+                    df_warmup = df_w[df_w.iloc[:, 0].isin(warmup_keys)]
+                    html = render_table_with_rowspan(df_warmup, merge_col=0)
+                    st.markdown(html, unsafe_allow_html=True)
+            else:
+                st.info("无热身数据")
+
+        # --- Tab: 拉伸 ---
+        with tab_stretch:
+            stretch_keys = [d for d in day_names if "练后拉伸" in d]
+            if stretch_keys:
+                if is_mobile:
+                    render_mobile_day(stretch_keys[0], day_data[stretch_keys[0]], header)
+                else:
+                    df_s = df_weekly.copy()
+                    df_s.iloc[:, 0] = df_s.iloc[:, 0].replace("", pd.NA).ffill().fillna("")
+                    df_stretch = df_s[df_s.iloc[:, 0].isin(stretch_keys)]
+                    html = render_table_with_rowspan(df_stretch, merge_col=0)
+                    st.markdown(html, unsafe_allow_html=True)
+            else:
+                st.info("无拉伸数据")
+
+        # --- Tab: 动作库 ---
+        with tab_lib:
             df_lib = load_sheet(gc, FITNESS_SPREADSHEET_ID, "动作库")
             if not df_lib.empty:
                 if is_mobile:
@@ -658,8 +657,8 @@ try:
             else:
                 st.info("无数据")
 
-        # --- Tab 3: 身体状况与禁忌 ---
-        with tab3:
+        # --- Tab: 身体状况与禁忌 ---
+        with tab_body:
             df_body = load_sheet(gc, FITNESS_SPREADSHEET_ID, "身体状况与禁忌")
             if not df_body.empty:
                 if is_mobile:
@@ -671,8 +670,8 @@ try:
             else:
                 st.info("无数据")
 
-        # --- Tab 4: 备注与说明 ---
-        with tab4:
+        # --- Tab: 备注与说明 ---
+        with tab_notes_tab:
             df_notes = load_sheet(gc, FITNESS_SPREADSHEET_ID, "备注与说明")
             if not df_notes.empty:
                 for _, row in df_notes.iterrows():
@@ -693,8 +692,8 @@ try:
             else:
                 st.info("无数据")
 
-        # --- Tab 5: 训练笔记 ---
-        with tab5:
+        # --- Tab: 训练笔记 ---
+        with tab_tnotes:
             df_tnotes = load_sheet(gc, FITNESS_SPREADSHEET_ID, "训练笔记")
             if not df_tnotes.empty:
                 if is_mobile:
