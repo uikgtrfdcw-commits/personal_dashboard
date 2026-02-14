@@ -478,7 +478,7 @@ GLOBAL_CSS = """
 <style>
 /* 隐藏 Streamlit 默认 UI —— 极力覆盖 */
 #MainMenu {display: none !important; visibility: hidden !important; height: 0 !important;}
-header {display: none !important; visibility: hidden !important; height: 0 !important;}
+[data-testid="stHeader"] {visibility: visible !important;}
 footer {display: none !important; visibility: hidden !important; height: 0 !important; position: absolute !important; bottom: -9999px !important;}
 [data-testid="stToolbar"] {display: none !important;}
 [data-testid="stDecoration"] {display: none !important;}
@@ -510,6 +510,14 @@ iframe[title="streamlit_badge"] {display: none !important;}
 }
 [data-testid="stSidebar"] .stRadio label {
     font-size: 14px !important;
+}
+/* 选择框（训练日选择）字体缩小 */
+[data-testid="stSelectbox"] {
+    font-size: 14px !important;
+}
+[data-testid="stSelectbox"] > div > div {
+    font-size: 14px !important;
+    min-height: 36px !important;
 }
 
 /* 全局字体 */
@@ -668,7 +676,7 @@ try:
         # ============================================================
         # 健身计划页面
         # ============================================================
-        st.markdown("### 健身计划")
+        st.markdown('<div style="text-align:center;padding:6px 0 2px 0;"><span style="font-size:16px;font-weight:600;color:#333;">健身计划</span></div>', unsafe_allow_html=True)
 
         tab_plan, tab_warmup, tab_stretch, tab_lib, tab_body, tab_notes_tab, tab_tnotes = st.tabs([
             "📅 训练计划",
@@ -835,7 +843,7 @@ try:
         # ============================================================
         # 任务清单页面
         # ============================================================
-        st.markdown("### 任务清单")
+        st.markdown('<div style="text-align:center;padding:6px 0 2px 0;"><span style="font-size:16px;font-weight:600;color:#333;">任务清单</span></div>', unsafe_allow_html=True)
 
         tab_active, tab_archive = st.tabs(["📌 进行中", "✅ 已完成"])
 
