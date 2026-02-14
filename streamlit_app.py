@@ -159,43 +159,57 @@ def render_mobile_exercise_card(row, header, index):
     return card_html
 
 
-def render_mobile_day(day_name, day_df, header):
-    color, bg, icon = DAY_COLORS.get(day_name, ("#333", "#f5f5f5", "📋"))
-
-    html = f'''
-    <div style="background:{bg};border-radius:8px;padding:12px;margin-bottom:12px;">
-        <div style="font-size:15px;font-weight:700;color:{color};text-align:center;">
-            {icon} {day_name}
-        </div>
-    </div>'''
-    st.markdown(html, unsafe_allow_html=True)
-
+def render_mobile_day(day_name, day_df, header, use_phase_tabs=True):
+    """渲染手机端训练日内容。use_phase_tabs=True 时按阶段分子选项卡"""
     phase_col = header.index("阶段") if "阶段" in header else -1
-    current_phase = ""
-    exercise_num = 1
 
+    # 收集各阶段的动作
+    phases = {}  # {phase_name: [(row, index), ...]}
+    exercise_num = 1
     for _, row_series in day_df.iterrows():
         row = row_series.tolist()
-        if phase_col >= 0:
-            phase = row[phase_col]
-            if phase and phase != current_phase:
-                current_phase = phase
+        phase = row[phase_col].strip() if phase_col >= 0 else ""
+        name = row[header.index("动作名称")] if "动作名称" in header else ""
+        if not name.strip():
+            continue
+        if phase not in phases:
+            phases[phase] = []
+        phases[phase].append((row, exercise_num if "严禁" not in name else -1))
+        if "严禁" not in name:
+            exercise_num += 1
+
+    phase_names = [p for p in phases.keys() if p]
+
+    # 如果有多个阶段且启用子选项卡，用 st.tabs
+    if use_phase_tabs and len(phase_names) > 1:
+        sub_tabs = st.tabs(phase_names)
+        for phase_name, sub_tab in zip(phase_names, sub_tabs):
+            with sub_tab:
+                _render_phase_cards(phases[phase_name], header)
+    else:
+        # 单阶段或不分 tab，直接渲染
+        for phase_name, items in phases.items():
+            if phase_name and len(phases) > 1:
                 st.markdown(
-                    f'<div style="font-size:14px;font-weight:600;color:#333;padding:6px 0 4px 0;border-bottom:1px solid #ddd;margin:10px 0 6px 0;">{phase}</div>',
+                    f'<div style="font-size:14px;font-weight:600;color:#333;padding:6px 0 4px 0;border-bottom:1px solid #ddd;margin:10px 0 6px 0;">{phase_name}</div>',
                     unsafe_allow_html=True,
                 )
+            _render_phase_cards(items, header)
 
+
+def _render_phase_cards(items, header):
+    """渲染一个阶段内的所有动作卡片"""
+    for row, idx in items:
         name = row[header.index("动作名称")] if "动作名称" in header else ""
-        if name.strip() and "严禁" not in name:
-            card = render_mobile_exercise_card(row, header, exercise_num)
-            st.markdown(card, unsafe_allow_html=True)
-            exercise_num += 1
-        elif "严禁" in name:
+        if idx == -1:  # 严禁项
             note = row[header.index("注意事项")] if "注意事项" in header else ""
             st.markdown(
                 f'<div style="background:#fef5f5;border-left:3px solid #c62828;padding:8px 12px;border-radius:4px;margin-bottom:8px;font-size:14px;color:#c62828;">🚫 {name}：{note}</div>',
                 unsafe_allow_html=True,
             )
+        else:
+            card = render_mobile_exercise_card(row, header, idx)
+            st.markdown(card, unsafe_allow_html=True)
 
 
 def render_mobile_body(df):
@@ -481,13 +495,48 @@ footer {visibility: hidden !important;}
 .stApp > footer {display: none !important;}
 a[href*="streamlit.io"] {display: none !important;}
 
-/* 侧边栏缩窄 */
-[data-testid="stSidebar"] {
-    min-width: 160px !important;
-    max-width: 160px !important;
+/* 完全隐藏侧边栏 */
+[data-testid="stSidebar"] {display: none !important;}
+[data-testid="stSidebarCollapsedControl"] {display: none !important;}
+button[kind="header"] {display: none !important;}
+
+/* 底部导航栏 */
+.bottom-nav {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 56px;
+    background: #fff;
+    border-top: 1px solid #e0e0e0;
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    z-index: 9999;
+    padding-bottom: env(safe-area-inset-bottom, 0px);
 }
-[data-testid="stSidebar"] .block-container {
-    padding: 1rem 0.8rem !important;
+.bottom-nav a {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-decoration: none;
+    color: #999;
+    font-size: 11px;
+    gap: 2px;
+    flex: 1;
+    padding: 6px 0;
+}
+.bottom-nav a.active {
+    color: #1565c0;
+}
+.bottom-nav a .nav-icon {
+    font-size: 22px;
+    line-height: 1;
+}
+
+/* 主内容区域给底栏留空间 */
+.main .block-container {
+    padding-bottom: 70px !important;
 }
 
 /* 全局字体 */
@@ -530,9 +579,38 @@ html, body, [class*="css"] {
 }
 
 @media (max-width: 768px) {
-    .block-container { padding: 0.5rem 0.8rem !important; }
+    .block-container { padding: 0.5rem 0.8rem !important; padding-bottom: 70px !important; }
     .stTabs [data-baseweb="tab-list"] { gap: 2px; }
     .stTabs [data-baseweb="tab"] { font-size: 14px; padding: 8px 10px; }
+}
+
+/* 子级选项卡（类似知乎精选/最新/想法） */
+.phase-tabs {
+    display: flex;
+    gap: 0;
+    margin: 8px 0 12px 0;
+    border: 1px solid #e0e0e0;
+    border-radius: 20px;
+    overflow: hidden;
+    background: #f5f5f5;
+}
+.phase-tab {
+    flex: 1;
+    text-align: center;
+    padding: 6px 0;
+    font-size: 13px;
+    font-weight: 500;
+    color: #666;
+    cursor: pointer;
+    border: none;
+    background: transparent;
+    transition: all 0.2s;
+}
+.phase-tab.active {
+    background: #fff;
+    color: #333;
+    font-weight: 600;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
 }
 </style>
 """
@@ -547,14 +625,51 @@ st.markdown(GLOBAL_CSS, unsafe_allow_html=True)
 screen_width = streamlit_js_eval(js_expressions="window.innerWidth", key="screen_width")
 is_mobile = screen_width is not None and screen_width < 768
 
-# 侧边栏导航
-with st.sidebar:
-    page = st.radio("导航", ["💪 健身计划", "📋 任务清单"], label_visibility="collapsed")
+# ---------- 底部导航栏（知乎风格） ----------
+params = st.query_params
+page = params.get("page", "fitness")
+if page not in ("fitness", "tasks"):
+    page = "fitness"
+
+fit_active = "active" if page == "fitness" else ""
+task_active = "active" if page == "tasks" else ""
+
+bottom_nav_html = f'''
+<div class="bottom-nav">
+    <a href="?page=fitness" target="_self" class="{fit_active}">
+        <span class="nav-icon">💪</span>
+        <span>健身计划</span>
+    </a>
+    <a href="?page=tasks" target="_self" class="{task_active}">
+        <span class="nav-icon">📋</span>
+        <span>任务清单</span>
+    </a>
+</div>
+'''
+st.markdown(bottom_nav_html, unsafe_allow_html=True)
+
+# ---------- JS: 强制移除 Streamlit 水印 ----------
+streamlit_js_eval(js_expressions="""
+(function() {
+    function removeWatermark() {
+        document.querySelectorAll('a[href*="streamlit.io"]').forEach(el => el.remove());
+        document.querySelectorAll('.viewerBadge_container__r5tak').forEach(el => el.remove());
+        document.querySelectorAll('[data-testid="stAppDeployButton"]').forEach(el => el.remove());
+        var footer = document.querySelector('footer');
+        if (footer) footer.style.display = 'none';
+        var mainFooter = document.querySelector('.main footer');
+        if (mainFooter) mainFooter.style.display = 'none';
+    }
+    removeWatermark();
+    setInterval(removeWatermark, 1000);
+    return 'ok';
+})()
+""", key="remove_watermark")
 
 try:
     gc = _get_client()
 
-    if page == "💪 健身计划":
+    if page == "fitness":
         # ============================================================
         # 健身计划页面
         # ============================================================
@@ -608,7 +723,7 @@ try:
             warmup_keys = [d for d in day_names if "热身" in d]
             if warmup_keys:
                 if is_mobile:
-                    render_mobile_day(warmup_keys[0], day_data[warmup_keys[0]], header)
+                    render_mobile_day(warmup_keys[0], day_data[warmup_keys[0]], header, use_phase_tabs=False)
                 else:
                     df_w = df_weekly.copy()
                     df_w.iloc[:, 0] = df_w.iloc[:, 0].replace("", pd.NA).ffill().fillna("")
@@ -623,7 +738,7 @@ try:
             stretch_keys = [d for d in day_names if "练后拉伸" in d]
             if stretch_keys:
                 if is_mobile:
-                    render_mobile_day(stretch_keys[0], day_data[stretch_keys[0]], header)
+                    render_mobile_day(stretch_keys[0], day_data[stretch_keys[0]], header, use_phase_tabs=False)
                 else:
                     df_s = df_weekly.copy()
                     df_s.iloc[:, 0] = df_s.iloc[:, 0].replace("", pd.NA).ffill().fillna("")
@@ -719,17 +834,10 @@ try:
             else:
                 st.info("无训练笔记")
 
-    elif page == "📋 任务清单":
+    elif page == "tasks":
         # ============================================================
         # 任务清单页面
         # ============================================================
-        if is_mobile:
-            st.markdown(
-                '<div style="text-align:center;padding:8px 0;"><span style="font-size:18px;font-weight:700;color:#333;">任务清单</span></div>',
-                unsafe_allow_html=True,
-            )
-        else:
-            st.markdown("### 任务清单")
 
         tab_active, tab_archive = st.tabs(["📌 进行中", "✅ 已完成"])
 
