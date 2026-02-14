@@ -163,6 +163,9 @@ def render_mobile_day(day_name, day_df, header, use_phase_tabs=True):
     """渲染手机端训练日内容。use_phase_tabs=True 时按阶段分子选项卡"""
     phase_col = header.index("阶段") if "阶段" in header else -1
 
+    # 只保留核心阶段：专项激活 / 主项训练 / 练后拉伸 / 热身
+    KEEP_PHASES = ("激活", "主项", "拉伸", "热身")
+
     # 收集各阶段的动作
     phases = {}  # {phase_name: [(row, index), ...]}
     exercise_num = 1
@@ -172,11 +175,15 @@ def render_mobile_day(day_name, day_df, header, use_phase_tabs=True):
         name = row[header.index("动作名称")] if "动作名称" in header else ""
         if not name.strip():
             continue
+        # 过滤非核心阶段（后链强化、核心训练、禁忌等）
+        if phase and not any(k in phase for k in KEEP_PHASES):
+            continue
+        if "严禁" in name:
+            continue
         if phase not in phases:
             phases[phase] = []
-        phases[phase].append((row, exercise_num if "严禁" not in name else -1))
-        if "严禁" not in name:
-            exercise_num += 1
+        phases[phase].append((row, exercise_num))
+        exercise_num += 1
 
     phase_names = [p for p in phases.keys() if p]
 
@@ -200,16 +207,8 @@ def render_mobile_day(day_name, day_df, header, use_phase_tabs=True):
 def _render_phase_cards(items, header):
     """渲染一个阶段内的所有动作卡片"""
     for row, idx in items:
-        name = row[header.index("动作名称")] if "动作名称" in header else ""
-        if idx == -1:  # 严禁项
-            note = row[header.index("注意事项")] if "注意事项" in header else ""
-            st.markdown(
-                f'<div style="background:#fef5f5;border-left:3px solid #c62828;padding:8px 12px;border-radius:4px;margin-bottom:8px;font-size:14px;color:#c62828;">🚫 {name}：{note}</div>',
-                unsafe_allow_html=True,
-            )
-        else:
-            card = render_mobile_exercise_card(row, header, idx)
-            st.markdown(card, unsafe_allow_html=True)
+        card = render_mobile_exercise_card(row, header, idx)
+        st.markdown(card, unsafe_allow_html=True)
 
 
 def render_mobile_body(df):
@@ -482,18 +481,29 @@ def render_task_table(df: pd.DataFrame, title: str, is_mobile: bool) -> None:
 # ============================================================
 GLOBAL_CSS = """
 <style>
-/* 隐藏 Streamlit 默认 UI */
-#MainMenu {visibility: hidden;}
-header {visibility: hidden;}
-footer {visibility: hidden !important;}
-[data-testid="stToolbar"] {display: none;}
-[data-testid="stDecoration"] {display: none;}
-[data-testid="stStatusWidget"] {display: none;}
+/* 隐藏 Streamlit 默认 UI —— 极力覆盖 */
+#MainMenu {display: none !important; visibility: hidden !important; height: 0 !important;}
+header {display: none !important; visibility: hidden !important; height: 0 !important;}
+footer {display: none !important; visibility: hidden !important; height: 0 !important; position: absolute !important; bottom: -9999px !important;}
+[data-testid="stToolbar"] {display: none !important;}
+[data-testid="stDecoration"] {display: none !important;}
+[data-testid="stStatusWidget"] {display: none !important;}
 .stDeployButton {display: none !important;}
 [data-testid="stAppDeployButton"] {display: none !important;}
 .viewerBadge_container__r5tak {display: none !important;}
+.viewerBadge_link__qRIco {display: none !important;}
 .stApp > footer {display: none !important;}
+.stApp footer {display: none !important;}
 a[href*="streamlit.io"] {display: none !important;}
+[data-testid="manage-app-button"] {display: none !important;}
+iframe[title="streamlit_badge"] {display: none !important;}
+.styles_viewerBadge__CvC9N {display: none !important;}
+/* 强制所有 footer 类元素 */
+.main > footer, .stApp > footer, footer.css-164nlkn, footer.css-1lsmgbg {
+    display: none !important;
+    height: 0 !important;
+    overflow: hidden !important;
+}
 
 /* 完全隐藏侧边栏 */
 [data-testid="stSidebar"] {display: none !important;}
@@ -512,7 +522,7 @@ button[kind="header"] {display: none !important;}
     display: flex;
     justify-content: space-around;
     align-items: center;
-    z-index: 9999;
+    z-index: 999999;
     padding-bottom: env(safe-area-inset-bottom, 0px);
 }
 .bottom-nav a {
@@ -652,16 +662,22 @@ st.markdown(bottom_nav_html, unsafe_allow_html=True)
 streamlit_js_eval(js_expressions="""
 (function() {
     function removeWatermark() {
-        document.querySelectorAll('a[href*="streamlit.io"]').forEach(el => el.remove());
-        document.querySelectorAll('.viewerBadge_container__r5tak').forEach(el => el.remove());
-        document.querySelectorAll('[data-testid="stAppDeployButton"]').forEach(el => el.remove());
-        var footer = document.querySelector('footer');
-        if (footer) footer.style.display = 'none';
-        var mainFooter = document.querySelector('.main footer');
-        if (mainFooter) mainFooter.style.display = 'none';
+        document.querySelectorAll('a[href*="streamlit.io"]').forEach(el => {el.style.display='none'; el.remove();});
+        document.querySelectorAll('.viewerBadge_container__r5tak, .viewerBadge_link__qRIco, .styles_viewerBadge__CvC9N').forEach(el => el.remove());
+        document.querySelectorAll('[data-testid="stAppDeployButton"], [data-testid="manage-app-button"]').forEach(el => el.remove());
+        document.querySelectorAll('iframe[title="streamlit_badge"]').forEach(el => el.remove());
+        document.querySelectorAll('footer').forEach(el => {el.style.display='none'; el.style.height='0'; el.style.overflow='hidden';});
+        document.querySelectorAll('.stApp footer, .main footer').forEach(el => {el.style.display='none';});
+        // 移除任何包含 "Hosted with Streamlit" 文本的元素
+        document.querySelectorAll('*').forEach(el => {
+            if (el.children.length === 0 && el.textContent && el.textContent.includes('Hosted with Streamlit')) {
+                var p = el.closest('div') || el.parentElement;
+                if (p) p.style.display = 'none';
+            }
+        });
     }
     removeWatermark();
-    setInterval(removeWatermark, 1000);
+    setInterval(removeWatermark, 500);
     return 'ok';
 })()
 """, key="remove_watermark")
