@@ -479,58 +479,83 @@ def render_task_table(df: pd.DataFrame, title: str, is_mobile: bool) -> None:
 # ============================================================
 GLOBAL_CSS = """
 <style>
-/* 隐藏 Streamlit 默认 UI —— 极力覆盖 */
-#MainMenu {display: none !important; visibility: hidden !important; height: 0 !important;}
-[data-testid="stHeader"] {visibility: visible !important;}
-footer {display: none !important; visibility: hidden !important; height: 0 !important; position: absolute !important; bottom: -9999px !important;}
-[data-testid="stToolbar"] {display: none !important;}
-[data-testid="stDecoration"] {display: none !important;}
-[data-testid="stStatusWidget"] {display: none !important;}
-.stDeployButton {display: none !important;}
-[data-testid="stAppDeployButton"] {display: none !important;}
-.viewerBadge_container__r5tak {display: none !important;}
-.viewerBadge_link__qRIco {display: none !important;}
-.stApp > footer {display: none !important;}
-.stApp footer {display: none !important;}
-a[href*="streamlit.io"] {display: none !important;}
-[data-testid="manage-app-button"] {display: none !important;}
-iframe[title="streamlit_badge"] {display: none !important;}
-.styles_viewerBadge__CvC9N {display: none !important;}
-/* 强制所有 footer 类元素 */
-.main > footer, .stApp > footer, footer.css-164nlkn, footer.css-1lsmgbg {
+/* === 全局隐藏 Streamlit 默认 UI === */
+#MainMenu, [data-testid="stToolbar"], [data-testid="stDecoration"],
+[data-testid="stStatusWidget"], .stDeployButton,
+[data-testid="stAppDeployButton"], [data-testid="manage-app-button"],
+.viewerBadge_container__r5tak, .viewerBadge_link__qRIco,
+.styles_viewerBadge__CvC9N, iframe[title="streamlit_badge"] {
     display: none !important;
+}
+/* 隐藏 header 并回收其空间 */
+[data-testid="stHeader"] {
     height: 0 !important;
+    min-height: 0 !important;
+    padding: 0 !important;
     overflow: hidden !important;
 }
+/* 隐藏侧边栏及其按钮 */
+[data-testid="stSidebar"],
+[data-testid="stSidebarCollapsedControl"] {
+    display: none !important;
+}
+/* 隐藏所有 footer / 水印 */
+footer, .stApp > footer, .stApp footer,
+.main > footer, a[href*="streamlit.io"] {
+    display: none !important;
+    height: 0 !important;
+}
 
-/* 侧边栏缩窄 */
-[data-testid="stSidebar"] {
-    min-width: 140px !important;
-    max-width: 140px !important;
+/* === 顶部内容区域去除空白 === */
+.main .block-container {
+    padding-top: 0.5rem !important;
+    max-width: 100% !important;
 }
-[data-testid="stSidebar"] > div:first-child {
-    padding: 1rem 0.6rem !important;
-}
-[data-testid="stSidebar"] .stRadio label {
-    font-size: 14px !important;
-}
-/* 选择框（训练日选择）字体缩小 */
-[data-testid="stSelectbox"] {
-    font-size: 14px !important;
-}
+
+/* === 选择框缩小 === */
+[data-testid="stSelectbox"] { font-size: 14px !important; }
 [data-testid="stSelectbox"] > div > div {
     font-size: 14px !important;
-    min-height: 36px !important;
+    min-height: 34px !important;
 }
 
-/* 全局字体与排版优化 */
+/* === 全局字体 === */
 html, body, [class*="css"] {
     font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", Arial, sans-serif;
     -webkit-font-smoothing: antialiased;
 }
-p, li, span, div {
-    color: #2c3e50;
+p, li, span, div { color: #2c3e50; }
+
+/* === 顶部导航 Radio === */
+.stRadio > div {
+    justify-content: center;
+    gap: 0 !important;
 }
+.stRadio [role="radiogroup"] {
+    gap: 0 !important;
+    background: #f1f3f5;
+    border-radius: 8px;
+    padding: 3px;
+    display: inline-flex !important;
+}
+.stRadio label {
+    font-size: 14px !important;
+    font-weight: 500 !important;
+    padding: 6px 16px !important;
+    border-radius: 6px !important;
+    margin: 0 !important;
+    cursor: pointer;
+    transition: all 0.15s;
+    color: #7f8c8d !important;
+}
+.stRadio label[data-checked="true"],
+.stRadio label:has(input:checked) {
+    background: white !important;
+    color: #1565c0 !important;
+    font-weight: 600 !important;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+.stRadio label > div:first-child { display: none !important; } /* 隐藏圆形radio按钮 */
 
 /* 表格 */
 .fit-table {
@@ -567,24 +592,17 @@ p, li, span, div {
 }
 
 @media (max-width: 768px) {
-    .main .block-container { 
-        padding: 0.2rem 0.5rem !important; 
-    }
-    /* 移除元素间的默认大边距 */
-    [data-testid="stVerticalBlock"] > div {
+    .main .block-container {
+        padding: 0.2rem 0.5rem !important;
         padding-top: 0 !important;
-        padding-bottom: 0 !important;
-        margin-top: -4px !important;
     }
-    .stTabs [data-baseweb="tab-list"] { 
-        gap: 0; 
-        margin-top: -15px;
-        margin-bottom: 5px;
+    .stTabs [data-baseweb="tab-list"] {
+        gap: 0;
+        margin-bottom: 6px;
     }
-    .stTabs [data-baseweb="tab"] { 
-        font-size: 13px !important; 
+    .stTabs [data-baseweb="tab"] {
+        font-size: 13px !important;
         padding: 6px 8px !important;
-        border: none !important;
     }
 }
 
@@ -655,9 +673,8 @@ if _icon_path.exists():
 screen_width = streamlit_js_eval(js_expressions="window.innerWidth", key="screen_width")
 is_mobile = screen_width is not None and screen_width < 768
 
-# ---------- 侧边栏导航 ----------
-with st.sidebar:
-    page = st.radio("导航", ["💪 健身计划", "📋 任务清单"], label_visibility="collapsed")
+# ---------- 顶部导航 ----------
+page = st.radio("nav", ["💪 健身计划", "📋 任务清单"], horizontal=True, label_visibility="collapsed")
 
 # ---------- JS: 强制移除 Streamlit 水印 ----------
 streamlit_js_eval(js_expressions="""
@@ -699,8 +716,6 @@ try:
         # ============================================================
         # 健身计划页面
         # ============================================================
-        st.markdown('<div style="text-align:center;padding:6px 0 2px 0;"><span style="font-size:16px;font-weight:600;color:#333;">健身计划</span></div>', unsafe_allow_html=True)
-
         tab_plan, tab_warmup, tab_stretch, tab_lib, tab_body, tab_notes_tab, tab_tnotes = st.tabs([
             "📅 训练计划",
             "🔥 热身",
@@ -866,8 +881,6 @@ try:
         # ============================================================
         # 任务清单页面
         # ============================================================
-        st.markdown('<div style="text-align:center;padding:6px 0 2px 0;"><span style="font-size:16px;font-weight:600;color:#333;">任务清单</span></div>', unsafe_allow_html=True)
-
         tab_active, tab_archive = st.tabs(["📌 进行中", "✅ 已完成"])
 
         with tab_active:
