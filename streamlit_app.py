@@ -498,7 +498,7 @@ GLOBAL_CSS = """
     position: absolute !important;
 }
 .stApp {
-    margin-top: -1rem !important;
+    margin-top: -2.5rem !important;
 }
 /* 隐藏侧边栏及其按钮 */
 [data-testid="stSidebar"],
@@ -520,6 +520,15 @@ footer, .stApp > footer, .stApp footer,
 }
 section.main > div:first-child {
     padding-top: 0 !important;
+}
+/* === 统一各板块间距 === */
+[data-testid="stVerticalBlock"] > div {
+    margin-bottom: 0 !important;
+    padding-top: 0 !important;
+    padding-bottom: 0 !important;
+}
+.stTabs {
+    margin-top: 4px !important;
 }
 
 /* === 选择框缩小 === */
@@ -610,11 +619,14 @@ p, li, span, div { color: #2c3e50; }
     }
     .stTabs [data-baseweb="tab-list"] {
         gap: 0;
-        margin-bottom: 6px;
+        margin-bottom: 4px;
     }
     .stTabs [data-baseweb="tab"] {
         font-size: 13px !important;
         padding: 6px 8px !important;
+    }
+    .stRadio {
+        margin-bottom: 2px !important;
     }
 }
 
