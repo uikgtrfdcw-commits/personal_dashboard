@@ -491,8 +491,14 @@ GLOBAL_CSS = """
 [data-testid="stHeader"] {
     height: 0 !important;
     min-height: 0 !important;
+    max-height: 0 !important;
     padding: 0 !important;
+    margin: 0 !important;
     overflow: hidden !important;
+    position: absolute !important;
+}
+.stApp {
+    margin-top: -1rem !important;
 }
 /* 隐藏侧边栏及其按钮 */
 [data-testid="stSidebar"],
@@ -508,8 +514,12 @@ footer, .stApp > footer, .stApp footer,
 
 /* === 顶部内容区域去除空白 === */
 .main .block-container {
-    padding-top: 0.5rem !important;
+    padding-top: 0 !important;
+    margin-top: 0 !important;
     max-width: 100% !important;
+}
+section.main > div:first-child {
+    padding-top: 0 !important;
 }
 
 /* === 选择框缩小 === */
@@ -593,7 +603,9 @@ p, li, span, div { color: #2c3e50; }
 
 @media (max-width: 768px) {
     .main .block-container {
-        padding: 0.2rem 0.5rem !important;
+        padding: 0 0.5rem !important;
+    }
+    section.main {
         padding-top: 0 !important;
     }
     .stTabs [data-baseweb="tab-list"] {
