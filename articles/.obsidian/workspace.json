@@ -1,0 +1,220 @@
+{
+  "main": {
+    "id": "8eb6b573ccff5b59",
+    "type": "split",
+    "children": [
+      {
+        "id": "15fd354191e01c9c",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "cfc6edd91cea2dca",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "介绍一下主流AI编程工具_v1.md",
+                "mode": "source",
+                "source": false
+              },
+              "icon": "lucide-file",
+              "title": "介绍一下主流AI编程工具_v1"
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "vertical"
+  },
+  "left": {
+    "id": "0801c459ad6f4858",
+    "type": "split",
+    "children": [
+      {
+        "id": "5065577cda653d8e",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "9243f042e9b35791",
+            "type": "leaf",
+            "state": {
+              "type": "file-explorer",
+              "state": {
+                "sortOrder": "byModifiedTime",
+                "autoReveal": false
+              },
+              "icon": "lucide-folder-closed",
+              "title": "文件列表"
+            }
+          },
+          {
+            "id": "470d9bb656c4e6f3",
+            "type": "leaf",
+            "state": {
+              "type": "search",
+              "state": {
+                "query": "",
+                "matchingCase": false,
+                "explainSearch": false,
+                "collapseAll": false,
+                "extraContext": false,
+                "sortOrder": "alphabetical"
+              },
+              "icon": "lucide-search",
+              "title": "搜索"
+            }
+          },
+          {
+            "id": "d3d42c58dc9ef9b5",
+            "type": "leaf",
+            "state": {
+              "type": "bookmarks",
+              "state": {},
+              "icon": "lucide-bookmark",
+              "title": "书签"
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "horizontal",
+    "width": 579.5
+  },
+  "right": {
+    "id": "10baa5d8d0164646",
+    "type": "split",
+    "children": [
+      {
+        "id": "eda8636b69147ff8",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "d1e775ad923ec273",
+            "type": "leaf",
+            "state": {
+              "type": "backlink",
+              "state": {
+                "file": "建一座新城能治好北京的病吗_v3.md",
+                "collapseAll": false,
+                "extraContext": false,
+                "sortOrder": "alphabetical",
+                "showSearch": false,
+                "searchQuery": "",
+                "backlinkCollapsed": false,
+                "unlinkedCollapsed": true
+              },
+              "icon": "links-coming-in",
+              "title": "建一座新城能治好北京的病吗_v3 的反向链接列表"
+            }
+          },
+          {
+            "id": "cbb56ff194827984",
+            "type": "leaf",
+            "state": {
+              "type": "outgoing-link",
+              "state": {
+                "file": "建一座新城能治好北京的病吗_v3.md",
+                "linksCollapsed": false,
+                "unlinkedCollapsed": true
+              },
+              "icon": "links-going-out",
+              "title": "建一座新城能治好北京的病吗_v3 的出链列表"
+            }
+          },
+          {
+            "id": "81e4609379d9a6cc",
+            "type": "leaf",
+            "state": {
+              "type": "tag",
+              "state": {
+                "sortOrder": "frequency",
+                "useHierarchy": true,
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-tags",
+              "title": "标签"
+            }
+          },
+          {
+            "id": "8f340e23c621486a",
+            "type": "leaf",
+            "state": {
+              "type": "all-properties",
+              "state": {
+                "sortOrder": "frequency",
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-archive",
+              "title": "添加笔记属性"
+            }
+          },
+          {
+            "id": "97b97126295f5d80",
+            "type": "leaf",
+            "state": {
+              "type": "outline",
+              "state": {
+                "file": "建一座新城能治好北京的病吗_v3.md",
+                "followCursor": false,
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-list",
+              "title": "建一座新城能治好北京的病吗_v3 的大纲"
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "horizontal",
+    "width": 300,
+    "collapsed": true
+  },
+  "left-ribbon": {
+    "hiddenItems": {
+      "switcher:打开快速切换": false,
+      "graph:查看关系图谱": false,
+      "canvas:新建白板": false,
+      "daily-notes:打开/创建今天的日记": false,
+      "templates:插入模板": false,
+      "command-palette:打开命令面板": false,
+      "bases:新建数据库": false
+    }
+  },
+  "active": "cfc6edd91cea2dca",
+  "lastOpenFiles": [
+    "为什么你一定要试一试AI编程工具_v5.md",
+    "为什么你一定要试一试AI编程工具_v6.md",
+    "介绍一下主流AI编程工具_v1.md",
+    "AI厨房_完整篇_v4.md",
+    "AI厨房_完整篇_v3.md",
+    "为什么你一定要试一试AI编程工具_v3.md",
+    "2026-02-26_为什么你一定要试一试AI编程工具_v2.md",
+    "2026-02-26_为什么你一定要试一试AI编程工具_v1.md",
+    "2026-02-26_为什么你一定要试一试AI编程工具_v3.md",
+    "霸王茶姬与准毒品_v3.md",
+    "霸王茶姬与准毒品_v2.md",
+    "霸王茶姬与准毒品_v1.md",
+    "霸王茶姬与准毒品_评论回复.md",
+    "为什么你一定要试一试AI编程工具_v2.md",
+    "2026-02-12_AI记忆问题与本地笔记本方案_v14.md",
+    "为什么你一定要试一试AI编程工具_v4.md",
+    "2026-02-12_AI记忆问题与本地笔记本方案_v17.md",
+    "统计学的本质_v1.md",
+    "爹味背后的心理机制_v5.md",
+    "2026-02-12_AI记忆问题与本地笔记本方案_v15.md",
+    "2026-02-12_AI记忆问题与本地笔记本方案_v16.md",
+    "2026-02-12_AI记忆问题与本地笔记本方案_v13.md",
+    "2026-02-12_AI记忆问题与本地笔记本方案_v4.md",
+    "2026-02-12_AI记忆问题与本地笔记本方案_v1.md",
+    "建一座新城能治好北京的病吗_v2.md",
+    "建一座新城能治好北京的病吗_v4.md",
+    "IMG_9539.png",
+    "525f80ff-5588-41c2-b3eb-3edd98982f2d.png",
+    "未命名.base",
+    "未命名",
+    "AI厨房v8~D045E.tmp"
+  ]
+}

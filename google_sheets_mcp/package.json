@@ -1,0 +1,16 @@
+{
+  "name": "google-sheets-mcp",
+  "version": "1.0.0",
+  "description": "MCP server for Google Sheets using existing Streamlit secrets",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^0.6.0",
+    "googleapis": "^140.0.0",
+    "http-proxy-agent": "^7.0.2",
+    "https-proxy-agent": "^7.0.6",
+    "toml": "^3.0.0"
+  }
+}

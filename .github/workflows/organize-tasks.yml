@@ -1,0 +1,56 @@
+name: 整理 Google Sheets 任务清单
+
+on:
+  schedule:
+    # 每天下午3点（北京时间 UTC+8），即 UTC 时间早上7点
+    - cron: '0 7 * * *'
+  workflow_dispatch: # 允许手动触发
+
+jobs:
+  organize-tasks:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout 代码
+        uses: actions/checkout@v4
+      
+      - name: 设置 Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      
+      - name: 安装依赖
+        run: |
+          cd google_sheets_mcp
+          npm install
+      
+      - name: 创建 secrets.toml
+        run: |
+          mkdir -p personal_dashboard/.streamlit
+          cat > personal_dashboard/.streamlit/secrets.toml << 'EOF'
+          [connections.gsheets]
+          type = "${{ secrets.GSHEET_TYPE }}"
+          project_id = "${{ secrets.GSHEET_PROJECT_ID }}"
+          private_key_id = "${{ secrets.GSHEET_PRIVATE_KEY_ID }}"
+          private_key = "${{ secrets.GSHEET_PRIVATE_KEY }}"
+          client_email = "${{ secrets.GSHEET_CLIENT_EMAIL }}"
+          client_id = "${{ secrets.GSHEET_CLIENT_ID }}"
+          auth_uri = "${{ secrets.GSHEET_AUTH_URI }}"
+          token_uri = "${{ secrets.GSHEET_TOKEN_URI }}"
+          auth_provider_x509_cert_url = "${{ secrets.GSHEET_AUTH_PROVIDER_CERT_URL }}"
+          client_x509_cert_url = "${{ secrets.GSHEET_CLIENT_CERT_URL }}"
+          universe_domain = "${{ secrets.GSHEET_UNIVERSE_DOMAIN }}"
+          EOF
+      
+      - name: 归档已完成任务
+        run: |
+          cd google_sheets_mcp
+          node remove_completed.js
+      
+      - name: 整理 archive sheet
+        run: |
+          cd google_sheets_mcp
+          node reorganize_archive.js
+      
+      - name: 完成通知
+        run: echo "✓ 任务清单整理完成"
